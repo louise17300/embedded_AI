@@ -9,3 +9,9 @@ Le dataset est structuré comme-suit :
 (explication des différents éléments)
 
 On va mélanger le dataset et créer nos sous dataset, training, validation et test.
+
+On utilise l'outil en ligne colab nous permettant d'entrainer notre model. On utilise cette outil car il offre des performance bien supérieur à nos ordinateurs personnels. 
+
+
+# Enregistrement de notre model
+ON vérifie que le model est enregistré en format h5.
