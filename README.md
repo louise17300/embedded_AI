@@ -1,5 +1,7 @@
 # embedded_AI
 
+Lien de l'éditeur en ligne : https://hackmd.io/5NlZjmKnTIuSRqFOd-GgoQ
+
 ## 1. Création du dataset
 On récupère le dataset sur https://data.mendeley.com/datasets/89cnxc58kj/1 et on stocke celui-ci de manière local sur nos ordinateur respectif.
 
