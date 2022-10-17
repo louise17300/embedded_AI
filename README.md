@@ -8,18 +8,12 @@ L'entrainement des modèles se fera sur l'outil en ligne google colab. On utilis
 
 On utilisera la librairie Keras fonctionnant sur TensorFlow pour la construction de nos modèles.
 
-L'ensemble du projet sera mené sur une carte **Mettre le nom de la carte**
+L'ensemble du projet sera mené sur une carte STM32L4R9 Discovery kit.
 
 ## Sommaire
-1. [Récupération du dataset](#1.-Récupération-du-dataset)
-2. [Augmentation du dataset](#2.-Augmentation-du-dataset)
-3. [Prétraitement de la base de données](#3.-Prétraitement-de-la-base-de-données)
-4. [Création du modèle](#4.-Création-du-modèle)
-5. [Entrainement du modèle](#4.-Entrainement-du-modèle)
-
-[Ressources](#Ressources)
-
-## 1. Récupération du dataset
+[ToC]
+## 1.Génération des modèles
+### 1.1. Récupération du dataset
 Au sein de ce projet on travail sur un dataset prééxistant. Celui-ci a été collecté lors d'un travail conjoint du département d'ingénierie de l'information de l'université Polytechnique de Marche et de STMicroelectronics.
 Le dataset contient 1770 images de feuilles de vignes séparée en deux catégories de taille égales:
 
@@ -29,7 +23,7 @@ Le dataset contient 1770 images de feuilles de vignes séparée en deux catégor
 
 On récupère le dataset sur https://data.mendeley.com/datasets/89cnxc58kj/1 et on stocke celui-ci sur un google drive. Cela permet de pouvoir y accéder directement via l'outil google colab.
 
-## 2. Augmentation du dataset
+### 1.2. Augmentation du dataset
 La performance des modèles que l'ont va générer dépend de la qualitée et de la quantité de nos données d'entrainement. Par exemple, si l'on a trop peu de donnée d'entrainement comparée à la taille de notre modèle, celui-ci va avoir tendance à faire de l'overfitting.
 Grâce à cette augmentation de la taille de notre dataset, on passe de 1770 images à 24780. Pour chaque, image on vient créer 13 variations de celle-ci. Cette nouvelle base de donnée sera elle aussi enregistrée sur notre google drive.
 
@@ -37,7 +31,7 @@ Example des augmentation faites sur une image :
 
 ![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/augmentations_example.png?raw=True)
 
-## 3. Prétraitement de la base de données
+### 1.3. Prétraitement de la base de données
 Il est nécessaire de redimensionner la taille des images car chaque modèle prent en entrée des images de dimensions différentes.
 De plus, on sépare notre base de données en trois parties distinctes :
 
@@ -47,7 +41,7 @@ De plus, on sépare notre base de données en trois parties distinctes :
 
 Si l'on ne fait pas cette séparation et que l'on valide ou test notre modèle avec les mêmes données que celles utilisées lors de l'entrainement, on ne sera pas à même de s'assurer que notre modèle ait bien généralisé et pas seulement mémoriser. On peut ainsi détecter les problèmes d'overfitting.
 
-## 4. Création du modèle
+### 1.4. Création du modèle
 Pour nos trois modèle, on utilise un modèle séquentiel. Le modèle séquentiel est apprioprié pour une pile de couches simple où chaque couche a exactement un tenseur d'entrée et un tenseur de sortie (https://www.tensorflow.org/guide/keras/sequential_model). 
 Les trois modèle sont constitués de 5 première surcouches, elles même constituées de trois couches :
 - *Conv2D* : permet de faire la convolution sur notre image en entrée et de donner en sortie un tensor. Un tensor représente un tableau d'images
@@ -55,6 +49,7 @@ Les trois modèle sont constitués de 5 première surcouches, elles même consti
     - Taille du noyau (kernel_size) : 3 par 3, la fenêtre de notre convolution se fait sur un carré de 3 pixels de côté.
     - Padding : same, signifie que la taille d'un filtre sera la même que la taille de l'image donnée en entrée.
 - *Relu* : couche d'activation. Permet de définir la valeur de sortie des neurones en fonction de la fonction d'activation. Ici Relu :
+
 ![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/Relu.png?raw=True)
 - *MaxPooling2D* : permet de faire le pooling, donc le groupement de donnée. Cela permet de donner une invariance pour les petites variations. Le MaxPooling2D permet de prendre la variable la plus grande sur une fenêtre de 2 pixels de côtés
 
@@ -129,32 +124,48 @@ Trainable params: 88,322
 Non-trainable params: 0
 ```
 
-## 5. Entrainement du modèle
-On entraine nos modèles sur 50 epochs.
+### 1.5. Entrainement du modèle
+On entraine nos modèles sur 50 époques. Une époque correspond à un cycle d'entrainement sur l'ensemble complet de données d'entrainement.
 Résultat de l'entrainement :
-![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/training_metrics_small.png?raw=True)
-![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/training_metrics_medium.png?raw=True)
+
+<figure>
+  <img     style="display: block; 
+           margin-left: auto;
+           margin-right: auto;"
+       src="https://github.com/louise17300/embedded_AI/blob/main/Images/training_metrics_small.png?raw=True"
+  alt="Métriques d'entrainement, modèle petit">
+  <figcaption style="text-align: center;"><b>Métriques d'entrainement, modèle petit</figcaption>
+</figure>
+
+<figure>
+  <img     style="display: block; 
+           margin-left: auto;
+           margin-right: auto;"
+       src="https://github.com/louise17300/embedded_AI/blob/main/Images/training_metrics_medium.png?raw=True"
+  alt="Métriques d'entrainement, modèle moyen">
+  <figcaption style="text-align: center;"><b>Métriques d'entrainement, modèle moyen</figcaption>
+</figure>
 
 **Commenter les résultats d'entrainement**
 
 Une fois l'entrainement fais, on enregistre nos modèle sur le format h5.
 
-## 6. Embarquement de notre réseau sur cible
+## 2. Embarquement de notre réseau sur cible
 à remplir
 
 Une fois nos 3 modèle entrainé, on se pose la question : 
 lequel choisir pour qu'il soit le plus adapté à notre stm32 ?
-### 6.1. Test de notre modèle (taille, ressources, ram)
-### 6.1. Compression de notre modèle
-#### 6.1.1. Prunning
-#### 6.1.2. Quantization
-### 6.3. Génération de notre code
+### 2.1. Test de notre modèle (taille, ressources, ram)
+### 2.2. Compression de notre modèle
+#### 2.2.1. Prunning
+#### 2.2.2. Quantization
+### 2.3. Génération de notre code
 
-### 6.4. Flash du code sur la cible
+### 2.4. Flash du code sur la cible
 
-### 6.5. Inférence de notre modèle
+### 2.5. Inférence de notre modèle
 
-## 7. Attaques sur nos modèles 
+## 3. Attaques sur nos modèles 
 
 
 # Ressources 
