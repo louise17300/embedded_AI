@@ -128,13 +128,14 @@ Non-trainable params: 0
 On entraine nos modèles sur 50 époques. Une époque correspond à un cycle d'entrainement sur l'ensemble complet de données d'entrainement.
 Résultat de l'entrainement :
 
+
 <figure>
   <img     style="display: block; 
            margin-left: auto;
            margin-right: auto;"
        src="https://github.com/louise17300/embedded_AI/blob/main/Images/training_metrics_small.png?raw=True"
   alt="Métriques d'entrainement, modèle petit">
-  <figcaption style="text-align: center;"><b>Métriques d'entrainement, modèle petit</figcaption>
+    <figcaption style="text-align: center;"><b>Métriques d'entrainement, modèle petit</b></figcaption>
 </figure>
 
 <figure>
@@ -143,7 +144,7 @@ Résultat de l'entrainement :
            margin-right: auto;"
        src="https://github.com/louise17300/embedded_AI/blob/main/Images/training_metrics_medium.png?raw=True"
   alt="Métriques d'entrainement, modèle moyen">
-  <figcaption style="text-align: center;"><b>Métriques d'entrainement, modèle moyen</figcaption>
+    <figcaption style="text-align: center;"><b>Métriques d'entrainement, modèle moyen</b></figcaption>
 </figure>
 
 **Commenter les résultats d'entrainement**
@@ -156,7 +157,23 @@ Une fois l'entrainement fais, on enregistre nos modèle sur le format h5.
 Une fois nos 3 modèle entrainé, on se pose la question : 
 lequel choisir pour qu'il soit le plus adapté à notre stm32 ?
 ### 2.1. Test de notre modèle (taille, ressources, ram)
+On a mis le model small sur la carte STM32L4R9. La taille du model est inférieure à la taille de la mémoire de la carte, il peut donc être chanrgé sans compréssion.
+    
+Taille du model sur la carte :
+    
+![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/small_model_size.png?raw=True)
+    
+On a ensuite essayé de mettre le model medium sur la carte. Nous avons eu le message d'erreur suivant :
+
+![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/erreur_medium.png?raw=True)
+
+On peut effectivement voir que le model fait 1,85MiB pour seulement 640KiB de RAM.
+
+![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/memoire_medium.png?raw=True)
+
 ### 2.2. Compression de notre modèle
+Les méthodes de compréssions de cube ne reduisent que la taille d'utilisation de la flash. Elles ne permettent pas de resoudre nos problèmes de RAM.
+
 #### 2.2.1. Prunning
 #### 2.2.2. Quantization
 ### 2.3. Génération de notre code
