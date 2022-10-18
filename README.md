@@ -155,8 +155,11 @@ Une fois l'entrainement fais, on enregistre nos modèle sur le format h5.
 ## 2. Embarquement de notre réseau sur cible
 Une fois nos 2 modèle entrainé, on se pose la question : 
 lequel choisir pour qu'il soit le plus adapté à notre stm32 ?
-### 2.1. Test de notre modèle (taille, ressources, ram)
+
+### 2.1. Test de déployment des modèles
 Nous avons donc commencé par tester le déployement de nos models sur la carte STM32L4R9.
+
+On utilise l'outil STM32CubeMx pour configurer la STM32. Lors de la configuration, on ajoute le module X-CUBE-AI, artificial intelligence. Ce module permet de charger un .h5 d'un de nos modèles et de faire une analyse pour savoir quel place le model associé prendra sur la carte.
 
 Le model small n'a pas posé problème. La taille du model est inférieure à la taille de la mémoire de la carte, il peut donc être chargé sans compréssion.
     
@@ -186,6 +189,7 @@ L'objectif du pruning, ou élagage en français, est de limiter la taille d'un r
 Une fois le**s ?** model accépté par STMCubeMx nous avons généré le code associé. 
 
 ### 2.4. Flash du code sur la cible
+**Revoir cette partie**
 
 ### 2.5. Inférence sur la cible
 Afin de tester notre model embarqué nous avons fait l'inference de notre model sur la cible via l'UART.
