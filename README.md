@@ -1,10 +1,10 @@
 # Embedded_AI : attaques sur des modèles de réseaux neuronaux convolutifs embarqués sur STM32F411
 
 ## Description du projet
-Le projet vise à générer trois modèles de réseaux convolutionels de tailles différentes dont l'objectif est de déterminer à partir d'une image si une vigne est atteinte de la maladie esca. On essaiera d'embarquer ces modèles, en les modifiants si nécessaire, sur une STM32F411.
+Le projet vise à embarquer une intelligence artificielle capable de raconnaire si une vigne atteinte de la maladie esca à partir d'image. Pour cela nous allons générer trois modèles de réseaux convolutionels de tailles différentes dont l'objectif est de déterminer à partir d'une image si une vigne est malade. On essaiera ensuite d'embarquer ces modèles, en les modifiants si nécessaire, sur une STM32F411.
 Ensuite, une série d'attaques seront effectués sur nos modèles pour observer leur fragilitées et des mesures seront mises en places pour essayer de les rendre plus robustes.
 
-L'entrainement des modèles se fera sur l'outil en ligne google colab. On utilisera l'outil STMCubeMx pour générer le code à flasher sur notre STM32F411 et STMCubeIDE pour flasher et faire du débogage.
+L'entrainement des modèles se fera sur l'outil en ligne google colab et sur nos ordinateurs portables personnels. On utilisera l'outil STMCubeMx pour générer le code à flasher sur notre STM32F411 et STMCubeIDE pour flasher et faire du débogage.
 
 On utilisera la librairie Keras fonctionnant sur TensorFlow pour la construction de nos modèles.
 
@@ -147,23 +147,25 @@ Résultat de l'entrainement :
     <figcaption style="text-align: center;"><b>Métriques d'entrainement, modèle moyen</b></figcaption>
 </figure>
 
-**Commenter les résultats d'entrainement**
+Nous n'avons pas entrainé le model large. En effet ce dernier prenait beaucoup de temps a entrainner. Il depassais les limites de temps de google colab gratuit et on ne peut pas se permettre de laisser nos ordinateur personnels tourner aussi longtemps car celà nous empèche de travailler les autres matières.
+
+On constate que le model small overfit legerement. En effet, les accuracy d'entrainement et de validation ne convergent pas. Le model medium est donc meilleur.
 
 Une fois l'entrainement fais, on enregistre nos modèle sur le format h5.
 
 ## 2. Embarquement de notre réseau sur cible
-à remplir
-
-Une fois nos 3 modèle entrainé, on se pose la question : 
+Une fois nos 2 modèle entrainé, on se pose la question : 
 lequel choisir pour qu'il soit le plus adapté à notre stm32 ?
 ### 2.1. Test de notre modèle (taille, ressources, ram)
-On a mis le model small sur la carte STM32L4R9. La taille du model est inférieure à la taille de la mémoire de la carte, il peut donc être chanrgé sans compréssion.
+Nous avons donc commencé par tester le déployement de nos models sur la carte STM32L4R9.
+
+Le model small n'a pas posé problème. La taille du model est inférieure à la taille de la mémoire de la carte, il peut donc être chargé sans compréssion.
     
 Taille du model sur la carte :
     
 ![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/small_model_size.png?raw=True)
     
-On a ensuite essayé de mettre le model medium sur la carte. Nous avons eu le message d'erreur suivant :
+On a ensuite essayé le déployement du model medium sur la carte. Nous avons eu le message d'erreur suivant :
 
 ![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/erreur_medium.png?raw=True)
 
@@ -172,12 +174,19 @@ On peut effectivement voir que le model fait 1,85MiB pour seulement 640KiB de RA
 ![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/memoire_medium.png?raw=True)
 
 ### 2.2. Compression de notre modèle
-Les méthodes de compréssions de cube ne reduisent que la taille d'utilisation de la flash. Elles ne permettent pas de resoudre nos problèmes de RAM.
+Notre model medium ne peut pas être déployé sur la carte tel quel nous avons donc tenté des méthodes de compréssion afin de réduire sa taille.
+#### 2.2.1. Quantization
+La méthode de compréssion utilisé par X-CUBE-AI permet de déployer un modèle quantifié (format entier 8 bits). La quantification est une technique d'optimisation pour compresser un modèle à virgule flottante 32 bits en réduisant sa taille, en améliorant l'utilisation et la latence CPU/MCU, au prix d'une légère dégradation de la précision.
 
-#### 2.2.1. Prunning
-#### 2.2.2. Quantization
+Cette méthode de compréssion ne reduisent que la taille d'utilisation de la flash. Elles ne permettent pas de resoudre nos problèmes de RAM.
+#### 2.2.2. Pruning
+Nous avons donc décidé d'utiliser une autre méthode de compression : le pruning.
+
+L'objectif du pruning, ou élagage en français, est de limiter la taille d'un résaux de neurones en supprimant certains liens tout en minimisant l'impact sur les performances. Pour cela des algorithmes permettent de déterminer la pertinence des liens afin de retirer ceux de poids faibles, qui n'influancent pas trop l'efficacité du modèle. 
 ### 2.3. Génération de notre code
+Une fois le model accépté par STMCubeMx nous avons généré le code associé. 
 
+Nous avons modifié le fichier "Application X-Cube AI" de ce code afin de communiquer avec la carte via l'UART.
 ### 2.4. Flash du code sur la cible
 
 ### 2.5. Inférence de notre modèle
