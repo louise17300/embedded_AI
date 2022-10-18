@@ -18,8 +18,7 @@ Au sein de ce projet on travail sur un dataset prééxistant. Celui-ci a été c
 Le dataset contient 1770 images de feuilles de vignes séparée en deux catégories de taille égales:
 
 - Des feuilles saines (healthy)
-- Des feuilles atteintes de la maladie d'Esca (esca). La maladie d'esca est provoquée par la contamination du bois de la vigne par des champignons et bactéries provoquant la nécrose du bois, des symptômes foliaires et progressivement la mort de la plante. (https://www.maladie-du-bois-vigne.fr/Les-maladies-du-bois/L-esca)
-
+- Des feuilles atteintes de la maladie d'Esca (esca). La maladie d'esca est provoquée par la contamination du bois de la vigne par des champignons et bactéries provoquant la nécrose du bois, des symptômes foliaires et progressivement la mort de la plante. 
 
 On récupère le dataset sur https://data.mendeley.com/datasets/89cnxc58kj/1 et on stocke celui-ci sur un google drive. Cela permet de pouvoir y accéder directement via l'outil google colab.
 
@@ -184,17 +183,58 @@ Nous avons donc décidé d'utiliser une autre méthode de compression : le pruni
 
 L'objectif du pruning, ou élagage en français, est de limiter la taille d'un résaux de neurones en supprimant certains liens tout en minimisant l'impact sur les performances. Pour cela des algorithmes permettent de déterminer la pertinence des liens afin de retirer ceux de poids faibles, qui n'influancent pas trop l'efficacité du modèle. 
 ### 2.3. Génération de notre code
-Une fois le model accépté par STMCubeMx nous avons généré le code associé. 
+Une fois le**s ?** model accépté par STMCubeMx nous avons généré le code associé. 
 
-Nous avons modifié le fichier "Application X-Cube AI" de ce code afin de communiquer avec la carte via l'UART.
 ### 2.4. Flash du code sur la cible
 
-### 2.5. Inférence de notre modèle
+### 2.5. Inférence sur la cible
+Afin de tester notre model embarqué nous avons fait l'inference de notre model sur la cible via l'UART.
 
+Nous avons modifié le fichier "Application X-Cube AI" du code précédament généré afin de regler les paramètres de l'UART permettant la bonne réception des images d'inférence.
+
+Ensuite à l'aide d'un code python "communication_STM32_esca.py" nous avons envoyé des images à la carte.
 ## 3. Attaques sur nos modèles 
+Une intelligence artificielle est une cible facile pour les hackers. En effet, il est possible de l'attaquer à chaque étape du processus. Il est possible de corrompre les données d'apprentissage, de dégrader le model de résaux de nerones, d'attaquer le résaux pendant l'apprentissage, de fausser les données inférentes,... Les attaques sont très variées et c'est un domaine nouveaux dans lequel elles n'ont pas toutes étés découvertes. Nous ne pouvons donc pas garantir la sécurité de notre résaux de nerones. 
+
+Nous allons tout de même tester quelques attaques afin de voir leur efficacité.
+### 3.1. Model de menace
+Afin de savoir quels sont les types d'attaques les plus suséptibles d'arriver on crée un model de menace.
+
+Pour cela il nous faut 
+- L'objectif de l'attaquant
+- La connaissance du model
+- Les étapes du process que l'attaquant peu attaquer
+
+Les objectifs des d'attaques sur un résaux de neronnes peuvent être de 3 types :
+- Attque de la confidentialité : L'attaquant cherche à recuperer des données confidentielles comme des informations sur la bases de donnée d'entrainement ou sur le model en lui même.
+- Attaque de l'integrité : L'attaquant cherche tromper le model.
+- Attaque de la disponibilité : L'attaquant cherche à diminuer les performances du model par exemple en augmentant le temps de réponse du model.
+
+Ici, la base de donnée et le model sont en ligne, il est donc peut probable que quelqu'un cherche à faire des attaques sur la confidencialité. Le temps de contamination de la maladie de l'esca étant de 10 ans, il n'est donc pas urgent de savoir qu'un plant est malade. Une attaque sur la disponibilité est donc également peu probable. Nous allons donc fixé l'intégrité comme attaque de l'attaquant.
+
+Comme le model utilisé est disponible sur internet la connaissance de l'attaquant est en boîte blanche. 
+
+On part du principe que l'attaquant n'est pas dans l'équipe qui doit embarqué le model mais un simple passant qui voit l'outils dans un champs de vigne. Nous avons entrainé le model avant de le mettre sur la carte, l'attaquant ne peut donc pas attaquer le processus d'entrainement mais seulement l'inférence.
+
+Ainsi pour résumer notre model de menace : 
+- attaque sur l'intégrité
+- en boîte blanche
+- à l'inférence
+
+### 3.2. Attaque adversarial
+Les attaques adversarials sont des attaques sur l'intégrité, à l'inférence qui peuvent se faire aussi bien en boîte blanche qu'en boîte noire (c'est plus facile en boîte blanche). Elles correspondent donc bien à notre model de menace.
+
+Le principe d'attaque adversarial est d'ajouter un bruit imperceptible à une image afin de tromper le model. 
+
+Il y a plusieurs normes d'attaques adversarials qui se carractérisent par le types de perturbation : 
+- La norme L<sub>0</sub> influe beaucoup sur peu de pixel : Une attaque va changer au maximum $\epsilon$ pixels.
+- La norme L<sub>$\infty$</sub> influe peu sur beaucoup de pixel : Une attaque va changer tout les pixels mais la perturabation sur un pixel sera de maximum $\epsilon$.
+
 
 
 # Ressources 
+Maladie de l'esca : https://www.bayer-agri.fr/cultures/esca-eutypiose-et-bda-pathogenes-complexes-et-tres-nuisibles_2296/#:~:text=En%20effet%2C%20se%20pr%C3%A9sentent%20%C3%A0,des%20sympt%C3%B4mes%20de%20la%20maladie et https://www.maladie-du-bois-vigne.fr/Les-maladies-du-bois/L-esca
+
 Lien de l'éditeur en ligne : https://hackmd.io/5NlZjmKnTIuSRqFOd-GgoQ
 
 
