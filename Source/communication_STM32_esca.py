@@ -18,6 +18,7 @@ from tensorflow import keras
 
 from matplotlib import pyplot as plt
 
+img_width, img_height = 80, 45
 
 class timer:
     def __init__(self, name=None):
@@ -29,8 +30,6 @@ class timer:
     def toc(self):
         self.T_stop = time.time()
         print("Elapsed time: " + str(self.T_stop - self.T_start) + " s")
-
-
 
 def perso_model_prediction(model, input_values, summary=False):
     # Load an already existing model and test its outputs
@@ -93,7 +92,20 @@ class esca_set:
 
 
 
-def synchronisation_with_target(debug=False):
+def synchronisation_with_target(debug=True):
+    """
+    Vérifie la connexion avec la carte.
+
+    Parameters
+    ----------
+    debug : TYPE, optional
+        DESCRIPTION. The default is True.
+
+    Returns
+    -------
+    None.
+
+    """
     sync = False
     ret = None
 
@@ -107,11 +119,11 @@ def synchronisation_with_target(debug=False):
         else:
             if (debug):
                 print ("Wrong ack reponse")
-
+        
 
 
 def send_NN_inputs_to_STM32(esca_set, ser):
-    if not ser.isOpen():
+    if not ser.isOpen():  # On vérifie si la liaison est bien ouverte
         print ("Error: serial connection to be used isn't opened")
         sys.exit(-1)
 
@@ -122,13 +134,15 @@ def send_NN_inputs_to_STM32(esca_set, ser):
     input_sent = False
     ser.flush()
 
-    tmp = esca_set.x_sample.reshape((1280,720)) #depend du model utilise
+    print(esca_set.x_sample.shape)
+    # tmp = esca_set.x_sample.reshape((img_width,img_height)) #depend du model utilise
+    tmp = esca_set.x_sample
     while(input_sent == False):
 
-        for i in range(1280):
-            for j in range(720):
+        for i in range(img_width):
+            for j in range(img_height):
                 ser.write(tmp[i,j])
-
+        print("Picture sent")
         input_sent = True
 
     # Used for debug (i.e. get the picture sent)
@@ -142,6 +156,7 @@ def send_NN_inputs_to_STM32(esca_set, ser):
     out_ack = b"000"
     while(out_ack != b"010"): # "010" has been chosen arbitrarily
         out_ack = ser.read(3)
+        print(out_ack)
 
     for i in range(10):
         esca_set.received_output[0][i] = struct.unpack('f', ser.read(4))[0]
@@ -154,15 +169,15 @@ if __name__ == '__main__':
 
     tf.autograph.set_verbosity(0)
     nb_inference = 100
-    with serial.Serial("COM3", 115200, timeout=1) as ser: # COM5 for H743 (nucleo) and COM6 for F411 (Nucleo)
+    with serial.Serial("COM7", 115200, timeout=1) as ser: # COM5 for H743 (nucleo) and COM6 for F411 (Nucleo)
         chrono = timer("Chrono")
     
         # Model available for board's results comparaison
-        used_model = "ESCA_NN_C2_16_10.h5"
+        used_model = "../Models/model_small_b32.h5"
     
         # X_test and Y_test dataset available for inference
-        path_xtest = "ESCA_xtest_NN_C2_16_10.npy"
-        path_ytest = "ESCA_ytest_NN_C2_16_10.npy"
+        path_xtest = "../Models/validation_set/validation_x_set.npy"
+        path_ytest = "../Models/validation_set/validation_y_set.npy"
         
     
         i = 0
@@ -173,13 +188,13 @@ if __name__ == '__main__':
         while(i < nb_inference):
             print ("\n\n----------- Inference "+str(i)+" requested: -----------\n")
     
-            t1 = esca_set(used_model)
-            t1.set_dataset_from_xtest(path_xtest, path_ytest)
-            t1.pick_rand_value_from_xtest()
+            t1 = esca_set(used_model)  # On crée une instance de notre classe esca_set
+            t1.set_dataset_from_xtest(path_xtest, path_ytest)  # On récupère nos données de test et leur labels et on les stocke dans la classe
+            t1.pick_rand_value_from_xtest()  # On prend un échantillon de donné
     
             print ("\n")
     
-            send_NN_inputs_to_STM32(t1, ser)
+            send_NN_inputs_to_STM32(t1, ser)  # Envoie de l'image à notre STM
     
             if(t1.match_pred_label() == 1):
                 nb_error += 1
