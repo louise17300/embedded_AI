@@ -25,11 +25,12 @@ x_sample = X_test[rand_sample]
 s_sample = x_sample/255
 y_sample = Y_test[rand_sample]
 tmp = y_sample.argmax(axis=0)
-
+#print(y_sample)
 print("Chosen input's corresponding label is "+str(tmp)+" according to y_test")
 
-#print(x_sample/255)
-x_sample = x_sample.reshape(80, 45, 3)
+
+x_sample = x_sample.reshape(1, 80, 45, 3)#80, 45 pour le small  320, 180
+#print(x_sample)
 dataset = tf
 ret = model.predict(x_sample,
                     batch_size=None)
