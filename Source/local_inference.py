@@ -37,7 +37,7 @@ for i in range(80):
             for i2 in range(4):
                 for j2 in range(4):
                     new[0][i*4+i2][j*4+j2][l]=x_sample[0][i][j][l]
-print(type(x_sample))
+#print(type(x_sample))
 dataset = tf
 ret = model.predict(new,
                     batch_size=None)
