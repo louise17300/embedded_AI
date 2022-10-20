@@ -40,9 +40,9 @@ De plus, on sépare notre base de données en trois parties distinctes :
 
 Si l'on ne fait pas cette séparation et que l'on valide ou test notre modèle avec les mêmes données que celles utilisées lors de l'entraînement, on ne sera pas à même de s'assurer que notre modèle ait bien généralisé et pas seulement mémoriser. On peut ainsi détecter les problèmes d'overfitting.
 
-On divise aussi les valeurs de nos pixels par 255, car ceux-ci sont codés sur 8bits, ce qui nous permet de revenir à une valeur comprise entre 0 et 1.
+On divise aussi les valeurs de nos pixels par 255, car ceux-ci sont codés sur 8 bits, ce qui nous permet de revenir à une valeur comprise entre 0 et 1.
 
-On génère finalement notre base de donnée finalle avec la fonction map. Cette fonction permet de structurer la base de donnée pour qu'elle soit "comprise" par tensorflow. (https://www.tensorflow.org/api_docs/python/tf/data/Dataset#map)
+On génère finalement notre base de données finale avec la fonction map. Cette fonction permet de structurer la base de données pour qu'elle soit "comprise" par tensorflow. (https://www.tensorflow.org/api_docs/python/tf/data/Dataset#map)
 
 ### 1.4. Création du modèle
 Pour nos trois modèles, on utilise un modèle séquentiel. Le modèle séquentiel est approprié pour une pile de couches simples où chaque couche a exactement un tenseur d'entrée et un tenseur de sortie (https://www.tensorflow.org/guide/keras/sequential_model). 
@@ -172,16 +172,16 @@ Taille du modèle sur la carte :
     
 ![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/small_model_size.png?raw=True)
     
-X-CUBE-AI nous permet également de valider le model sur notre ordinateur. Les résulats d'un test de validation du model small donnent : 
+X-CUBE-AI nous permet également de valider le modèle sur notre ordinateur. Les résultats d'un test de validation du modèle small donnent : 
 ![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/small_model_metrics.png?raw=True)
 
-L'accuracy est de 80% ce qui parait cohérent.
+L'accuracy est de 80% ce qui paraît cohérent.
 
 On a ensuite essayé le déploiement du modèle médium sur la carte. Nous avons eu le message d'erreur suivant : 
 
 ![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/erreur_medium.png?raw=True)
 
-On peut effectivement voir que le modèle fait 1,85MiB pour seulement 640KiB de RAM.
+On peut effectivement voir que le modèle fait 1,85 MiB pour seulement 640 KiB de RAM.
 
 ![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/memoire_medium.png?raw=True)
 
@@ -200,11 +200,11 @@ L'objectif du pruning, ou élagage en français, est de limiter la taille d'un r
 
 ![change_queue_position](https://github.com/louise17300/embedded_AI/blob/main/Images/pruning_result.png?raw=True)
 
-Malheureusement, nous avons pu constater sur cubeMX que le prunning n'a aucun effet sur la place prise par le modèle sur la carte.
+Malheureusement, nous avons pu constater sur cubeMX que le pruning n'a aucun effet sur la place prise par le modèle sur la carte.
 
 ### 2.3. Génération de notre code
 Due à des contraintes de temps, nous n'avons essayé l'inférence uniquement sur le modèle small.
-Nous avons généré le code associé au model que l'on a flashé sur la cible.
+Nous avons généré le code associé au modèle que l'on a flashé sur la cible.
 
 ### 2.4. Inférence sur la cible
 Afin de tester notre modèle embarqué nous avons fait l'inférence de notre modèle sur la cible via l'UART.
@@ -213,18 +213,18 @@ Nous avons modifié le fichier "Application X-Cube AI" du code précédemment g�
 
 Ensuite à l'aide d'un code python "communication_STM32_esca.py" nous avons envoyé des images à la carte.
 #### 2.4.1. Problèmes lors de la synchronisation
-Nous faisons face à deux problème lors de cette étape.
-Le premier est la synchronisation entrela partie python et la partie embarquée. Le problème trouve son origine dans la déclaration des variables ou seront stockées les données envoyée et reçue. En effet celle-ci était redéclarée à chaque passage dans la boucle de synchronisation. Cette boucle se fait au début de chaque inférence. Pour une raison que nous n'arrivons pas à expliquer. On observe que la première synchronisation s'exécute correctement mais que les valeurs n'arrivent pas à se mettre à jour lors des synchronisation suivante. Pour régler ce problème il a suffit de déplacer la déclaration des variables en dehors de la boucle et de remettre les variables à 0 après chaque synchronisation.
+Nous faisons face à deux problèmes lors de cette étape.
+Le premier est la synchronisation entre la partie python et la partie embarquée. Le problème trouve son origine dans la déclaration des variables ou seront stockées les données envoyées et reçues. En effet, celle-ci était déclarée à chaque passage dans la boucle de synchronisation. Cette boucle se fait au début de chaque inférence. Pour une raison que nous n'arrivons pas à expliquer. On observe que la première synchronisation s'exécute correctement mais que les valeurs n'arrivent pas à se mettre à jour lors des synchronisations suivantes. Pour régler ce problème il suffit de déplacer la déclaration des variables en dehors de la boucle et de remettre les variables à 0 après chaque synchronisation.
 
 #### 2.4.2. Problème lors de l'envoie d'une image
-Comme dit précedement, on fait ces tests sur le model_small n'ayant pas eu de pruning. Les images sont donc de tailles (80, 45, 3), le 80 étant largeur, le 45 la hauteur et le 3 représentant les valeurs rgb par image.
+Comme dit précédemment, on fait ces tests sur le model_small n'ayant pas eu de pruning. Les images sont donc de tailles (80, 45, 3), le 80 étant largeur, le 45 la hauteur et le 3 représentant les valeurs rgb par image.
 Lors du débug, on vient afficher la valeur du premier pixel :
 
 ```python
 print(tmp[0,0]/255)
 ```
 
-On divise par 255 car notre modèle prend en entrée des valeurs normalisée. Le premier pixel vaut :
+On divise par 255 car notre modèle prend en entrée des valeurs normalisées. Le premier pixel vaut :
 ![valeur_pixel1](https://github.com/louise17300/embedded_AI/blob/main/Images/valeur_pixel1.png?raw=True)
 
 On va essayer de passer à notre modèle un input de type : 
@@ -240,7 +240,7 @@ Questions que je me pose :
     - matrice float 80,45,3
     - matrice float 3600,3
     - tableau float 10800
-    - Pour mnist, image 28x28 en une couleur. Une valeur est envoyée à la fois et fais 4octet (32bits), ces 4 octets sont stockés sur un tableau d'octets de taille, donc, 4. On reconstitue l'image à l'aide de input qui n'est utilisé que si l'on fait du débug. On vient copier les donner octet par octet dans la variable data, on avait : 
+    - Pour mnist, image 28x28 en une couleur. Une valeur est envoyée à la fois et fait 4 octets (32 bits), ces 4 octets sont stockés sur un tableau d'octets de taille, donc, 4. On reconstitue l'image à l'aide de input qui n'est utilisé que si l'on fait du débug. On vient copier les données octet par octet dans la variable data, on avait : 
 ```cpp
 for (i = 0; i < 28; i++){
     for (j = 0; j < 28; j++){
@@ -294,28 +294,21 @@ Il y a plusieurs normes d'attaques adversarials qui se caractérisent par le typ
 - La norme L<sub>0</sub> influe beaucoup sur peu de pixel : Une attaque va changer au maximum $\epsilon$ pixels.
 - La norme L<sub>$\infty$</sub> influe peu sur beaucoup de pixel : Une attaque va changer tout les pixels mais la perturbation sur un pixel sera de maximum $\epsilon$.
 
-Nous avons choisit de tester avec un model adversarial de norme L<sub>0</sub>.
+Nous avons choisi de tester avec un model adversarial de norme L<sub>0</sub>.
 
 Exemple d'attaque adversarial : 
 ![image alt](https://github.com/louise17300/embedded_AI/blob/main/Images/Adversarial_3images.png?raw=True)
-La première image est une image de la base de donnée dont la qualité à été diminué en 80x50 pixel pour coordonner avec l'entrée du model d'inférence small. La deuxième est la perturbation généré par notre code suite à une étude du gradient de la loss. La dernière est l'image perturbé qui correspond à la somme de l'imge de départ et de la perturbation.
+La première image est une image de la base de donnée dont la qualité à été diminué en 80x50 pixel pour coordonner avec l'entrée du modèle d'inférence small. La deuxième est la perturbation générée par notre code suite à une étude du gradient de la loss. La dernière est l'image perturbé qui correspond à la somme de l'image de départ et de la perturbation.
 
 
 ## Conclusion
-Il est possible de déploier une intelligence artificielle qui reconnait des images de feuilles de vigne atteinte de la maladie de l'esca sur la carte imposé. 
-
-# Problèmes -> ARSÈNE CHANGE
-On envoie sur la carte notre image, chaque pixel contient trois donnée, pour les 3 couleurs RGB. Cependant, quand on les réceptionne on ne garde la valeur que d'une seule composante de couleur.
-
-
-
-
-Il a fallu ajouter un flush et modifier l'emplacement des variables pour éviter un problème de persistance de la mémoire.
+Il est possible de déployer une intelligence artificielle qui reconnaît des images de feuilles de vigne atteintes de la maladie de l'esca sur la carte imposée. Parmi les 3 modèles proposés seuls le small tiens sur la carte, c'est donc celui-ci que nous choisirons. 
 
 # Ressources 
 Maladie de l'esca : https://www.bayer-agri.fr/cultures/esca-eutypiose-et-bda-pathogenes-complexes-et-tres-nuisibles_2296/#:~:text=En%20effet%2C%20se%20pr%C3%A9sentent%20%C3%A0,des%20sympt%C3%B4mes%20de%20la%20maladie et https://www.maladie-du-bois-vigne.fr/Les-maladies-du-bois/L-esca
 
 Lien de l'éditeur en ligne : https://hackmd.io/5NlZjmKnTIuSRqFOd-GgoQ
+
 
 
 
