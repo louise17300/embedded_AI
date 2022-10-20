@@ -10,6 +10,10 @@ import tensorflow as tf
 from tensorflow import keras
 from random import randint
 import matplotlib.pyplot as plt
+from PIL import Image
+tf.compat.v1.enable_eager_execution()
+#from tensorflow.python.ops.numpy_ops import np_config
+#np_config.enable_numpy_behavior()
 
 path_to_model = "../Models/model_small_b32.h5"
 #medium
@@ -33,14 +37,14 @@ print("Chosen input's corresponding label is "+str(tmp)+" according to y_test")
 x_sample = x_sample.reshape(1, 80, 45, 3)
 
 #Pour le medium
-#new = np.ndarray(shape=(1, 320, 180, 3))
 #for i in range(80):
 #    for j in range(45):
 #        for l in range(3):
 #            for i2 in range(4):
 #                for j2 in range(4):
 #                    new[0][i*4+i2][j*4+j2][l]=x_sample[0][i][j][l]
- #pour le small
+#pour le small
+
 new=x_sample
 
 dataset = tf
@@ -71,13 +75,17 @@ perturbations = create_adversarial_pattern(x_tensor, y_tensor)
 #print(perturbations)
 #plt.imshow(perturbations[0] * 0.5 + 0.5);
 
+
+
 def display_images(image, description):
-  print(image.shape)
   prediction = model.predict(image, batch_size=None)
   label = prediction[0].argmax(axis=0)
   confidence = prediction[0][label]
   plt.figure()
-  plt.imshow(image[0]*0.5+0.5)
+  new = np.array(image)
+  new = new[0].astype(np.uint8)
+  image2 = Image.fromarray(new)
+  plt.imshow(image2)
   print("label", label)
   print("confidence", confidence)
   #plt.title('{} \n {} : {:.2f}% Confidence'.format(description,label, confidence*100))
