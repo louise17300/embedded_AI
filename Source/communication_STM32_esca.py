@@ -162,8 +162,7 @@ def send_NN_inputs_to_STM32(esca_set, ser):
     while(out_ack != b"111"): # "111" has been chosen arbitrarily
         out_ack = ser.read(3)
         print(out_ack)
-    print("pass")
-    for i in range(10):
+    for i in range(2):
         esca_set.received_output[0][i] = struct.unpack('f', ser.read(4))[0]
 
     esca_set.categorize_received_output()
