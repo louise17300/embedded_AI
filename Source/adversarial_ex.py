@@ -94,3 +94,4 @@ def display_images(image, description):
 display_images(new,"normal")
 display_images(perturbations,"perturbation")
 display_images(new+perturbations,"image perturbé")
+print(X_test.shape)
